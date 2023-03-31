@@ -35,6 +35,7 @@ class WordCompleter(Completer):
         self,
         words: list[str] | Callable[[], list[str]],
         ignore_case: bool = False,
+        move_back_one_space = False,
         display_dict: Mapping[str, AnyFormattedText] | None = None,
         meta_dict: Mapping[str, AnyFormattedText] | None = None,
         WORD: bool = False,
@@ -46,6 +47,7 @@ class WordCompleter(Completer):
 
         self.words = words
         self.ignore_case = ignore_case
+        self.move_back_one_space = move_back_one_space
         self.display_dict = display_dict or {}
         self.meta_dict = meta_dict or {}
         self.WORD = WORD
@@ -92,3 +94,5 @@ class WordCompleter(Completer):
                     display=display,
                     display_meta=display_meta,
                 )
+        if self.move_back_one_space:
+            print("\b")
