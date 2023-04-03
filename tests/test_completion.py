@@ -280,6 +280,26 @@ def test_word_completer_static_word_list():
     assert [c.text for c in completions] == ["abc", "aaa"]
 
 
+def test_word_completer_static_word_list_special_and_alphanumeric():
+    completer = WordCompleter(["-abc", "-def", "aaa"])
+
+    # Static list on empty input.
+    completions = completer.get_completions(Document(""), CompleteEvent())
+    assert [c.text for c in completions] == ["-abc", "-def", "aaa"]
+
+    completions = completer.get_completions(Document("-"), CompleteEvent())
+    assert [c.text for c in completions] == ["-abc", "-def"]
+
+    completions = completer.get_completions(Document("-a"), CompleteEvent())
+    assert [c.text for c in completions] == ["-abc"]
+
+    completions = completer.get_completions(Document("-d"), CompleteEvent())
+    assert [c.text for c in completions] == ["-def"]
+
+    completions = completer.get_completions(Document("a"), CompleteEvent())
+    assert [c.text for c in completions] == ["aaa"]
+
+
 def test_word_completer_ignore_case():
     completer = WordCompleter(["abc", "def", "aaa"], ignore_case=True)
     completions = completer.get_completions(Document("a"), CompleteEvent())
