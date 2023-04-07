@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from keyboard import press_and_release
 from typing import Callable, Iterable, Mapping, Pattern
 
 from prompt_toolkit.completion import CompleteEvent, Completer, Completion
@@ -35,7 +36,7 @@ class WordCompleter(Completer):
         self,
         words: list[str] | Callable[[], list[str]],
         ignore_case: bool = False,
-        move_back_one_space = False,
+        move_back_one_space: bool = False,
         display_dict: Mapping[str, AnyFormattedText] | None = None,
         meta_dict: Mapping[str, AnyFormattedText] | None = None,
         WORD: bool = False,
@@ -95,4 +96,4 @@ class WordCompleter(Completer):
                     display_meta=display_meta,
                 )
         if self.move_back_one_space:
-            print("\b")
+            press_and_release("left")
