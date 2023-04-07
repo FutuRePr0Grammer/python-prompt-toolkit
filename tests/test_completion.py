@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 import shutil
 import tempfile
 from contextlib import contextmanager
 
+import keyboard
+
+from prompt_toolkit import prompt, PromptSession
 from prompt_toolkit.completion import (
     CompleteEvent,
     FuzzyWordCompleter,
@@ -15,6 +19,9 @@ from prompt_toolkit.completion import (
     merge_completers,
 )
 from prompt_toolkit.document import Document
+from prompt_toolkit.enums import EditingMode
+from prompt_toolkit.input import create_pipe_input
+from prompt_toolkit.output import DummyOutput
 
 
 @contextmanager
@@ -360,10 +367,10 @@ def test_word_completer_pattern():
     completions = completer.get_completions(Document("a."), CompleteEvent())
     assert [c.text for c in completions] == ["a.b.c", "a.b"]
 
-    # Without pattern
+    # Without pattern - should still include special characters now because issue 1609 enables special chars
     completer = WordCompleter(["abc", "a.b.c", "a.b", "xyz"])
     completions = completer.get_completions(Document("a."), CompleteEvent())
-    assert [c.text for c in completions] == []
+    assert [c.text for c in completions] == ["a.b.c", "a.b"]
 
 
 def test_fuzzy_completer():
