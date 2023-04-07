@@ -1,5 +1,5 @@
-from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
 
 mycompleter = WordCompleter(['-a', '-app', '--apple', '--apricot' ,'build', 'builder', 'buildx'])
 
