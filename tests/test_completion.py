@@ -6,6 +6,8 @@ import shutil
 import tempfile
 from contextlib import contextmanager
 
+import keyboard
+
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import (
     CompleteEvent,
@@ -335,6 +337,12 @@ def test_word_completer_move_cursor():
     """sys.stdout.write("TESTTITLE")
     keyboard.press_and_release("enter")
     assert text == "title(TESTTITLE)"""""
+
+    keyboard.press_and_release("tab")
+    result, cli = _feed_cli_with_input("TESTTITLE\r")
+    keyboard.press_and_release("enter")
+    assert result.text == "title(TESTTITLE)"
+    assert cli.current_buffer.text == "title(TESTTITLE)"
 
     """result, cli = _feed_cli_with_input("ti\tTESTTITLE\r")
     assert result.text == "title(TESTTITLE)"
