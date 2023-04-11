@@ -6,6 +6,9 @@ import shutil
 import tempfile
 from contextlib import contextmanager
 
+import keyboard
+
+from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import (
     CompleteEvent,
     FuzzyWordCompleter,
@@ -15,6 +18,9 @@ from prompt_toolkit.completion import (
     merge_completers,
 )
 from prompt_toolkit.document import Document
+from prompt_toolkit.enums import EditingMode
+from prompt_toolkit.input import create_pipe_input
+from prompt_toolkit.output import DummyOutput
 
 
 @contextmanager
