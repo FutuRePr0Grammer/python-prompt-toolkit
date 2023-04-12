@@ -295,60 +295,6 @@ def test_word_completer_ignore_case():
     assert [c.text for c in completions] == ["abc", "aaa"]
 
 
-# TODO: delete if not needed, implemented for move_cursor() test
-def _feed_cli_with_input(
-        text,
-        editing_mode=EditingMode.EMACS,
-        clipboard=None,
-        history=None,
-        multiline=False,
-        check_line_ending=True,
-        key_bindings=None,
-):
-    if check_line_ending:
-        assert text.endswith("\r")
-
-    with create_pipe_input() as inp:
-        inp.send_text(text)
-        session = PromptSession(
-            input=inp,
-            output=DummyOutput(),
-            editing_mode=editing_mode,
-            history=history,
-            multiline=multiline,
-            clipboard=clipboard,
-            key_bindings=key_bindings,
-        )
-
-        _ = session.prompt()
-        return session.default_buffer.document, session.app
-
-
-# TODO: Finish this test to simulate typing
-def test_word_completer_move_cursor():
-    # move_cursor set to true
-    completer = WordCompleter(["author:", "title()"], move_back_one_space=True)
-    # prompt_text = prompt(
-    #     "Begin typing author or title to autocomplete: ", completer=completer, complete_while_typing=False
-    # )
-    completions = completer.get_completions(Document("ti"), CompleteEvent())
-    assert [c.text for c in completions] == ["title()"]
-
-    """sys.stdout.write("TESTTITLE")
-    keyboard.press_and_release("enter")
-    assert text == "title(TESTTITLE)"""""
-
-    keyboard.press_and_release("tab")
-    result, cli = _feed_cli_with_input("TESTTITLE\r")
-    keyboard.press_and_release("enter")
-    assert result.text == "title(TESTTITLE)"
-    assert cli.current_buffer.text == "title(TESTTITLE)"
-
-    """result, cli = _feed_cli_with_input("ti\tTESTTITLE\r")
-    assert result.text == "title(TESTTITLE)"
-    assert cli.current_buffer.text == "title(TESTTITLE)"""""
-
-
 def test_word_completer_match_middle():
     completer = WordCompleter(["abc", "def", "abca"], match_middle=True)
     completions = completer.get_completions(Document("bc"), CompleteEvent())
