@@ -37,24 +37,28 @@ class WordCompleter(Completer):
         words: list[str] | Callable[[], list[str]],
         ignore_case: bool = False,
         move_back_one_space: bool = False,
+        isFunction: bool = False,
         display_dict: Mapping[str, AnyFormattedText] | None = None,
         meta_dict: Mapping[str, AnyFormattedText] | None = None,
         WORD: bool = False,
         sentence: bool = False,
         match_middle: bool = False,
         pattern: Pattern[str] | None = None,
+
     ) -> None:
         assert not (WORD and sentence)
 
         self.words = words
         self.ignore_case = ignore_case
         self.move_back_one_space = move_back_one_space
+        self.isFunction = isFunction
         self.display_dict = display_dict or {}
         self.meta_dict = meta_dict or {}
         self.WORD = WORD
         self.sentence = sentence
         self.match_middle = match_middle
         self.pattern = pattern
+
 
     def get_completions(
         self, document: Document, complete_event: CompleteEvent
@@ -89,11 +93,20 @@ class WordCompleter(Completer):
             if word_matches(a):
                 display = self.display_dict.get(a, a)
                 display_meta = self.meta_dict.get(a, "")
-                yield Completion(
-                    text=a,
-                    start_position=-len(word_before_cursor),
-                    display=display,
-                    display_meta=display_meta,
-                )
+                # make changes to text to add parenthesis and change start position accordingly
+                if not self.isFunction:
+                    yield Completion(
+                        text= a,
+                        start_position=-len(word_before_cursor),
+                        display=display,
+                        display_meta=display_meta,
+                    )
+                else:
+                    yield Completion(
+                        text= a + "()",
+                        start_position=-len(word_before_cursor),
+                        display=display,
+                        display_meta=display_meta,
+                    )
         if self.move_back_one_space:
             press_and_release("left")
