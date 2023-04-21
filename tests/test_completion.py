@@ -10,6 +10,7 @@ from contextlib import contextmanager
 import keyboard
 
 from prompt_toolkit import prompt, PromptSession
+
 from prompt_toolkit.completion import (
     CompleteEvent,
     FuzzyWordCompleter,
