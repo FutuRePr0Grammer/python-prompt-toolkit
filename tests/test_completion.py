@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 import shutil
 import tempfile
 from contextlib import contextmanager
 
 import keyboard
 
-from prompt_toolkit import PromptSession
+from prompt_toolkit import prompt, PromptSession
+
 from prompt_toolkit.completion import (
     CompleteEvent,
     FuzzyWordCompleter,
@@ -286,6 +288,26 @@ def test_word_completer_static_word_list():
     assert [c.text for c in completions] == ["abc", "aaa"]
 
 
+def test_word_completer_static_word_list_special_and_alphanumeric():
+    completer = WordCompleter(["-abc", "-def", "aaa"])
+
+    # Static list on empty input.
+    completions = completer.get_completions(Document(""), CompleteEvent())
+    assert [c.text for c in completions] == ["-abc", "-def", "aaa"]
+
+    completions = completer.get_completions(Document("-"), CompleteEvent())
+    assert [c.text for c in completions] == ["-abc", "-def"]
+
+    completions = completer.get_completions(Document("-a"), CompleteEvent())
+    assert [c.text for c in completions] == ["-abc"]
+
+    completions = completer.get_completions(Document("-d"), CompleteEvent())
+    assert [c.text for c in completions] == ["-def"]
+
+    completions = completer.get_completions(Document("a"), CompleteEvent())
+    assert [c.text for c in completions] == ["aaa"]
+
+
 def test_word_completer_ignore_case():
     completer = WordCompleter(["abc", "def", "aaa"], ignore_case=True)
     completions = completer.get_completions(Document("a"), CompleteEvent())
@@ -346,10 +368,10 @@ def test_word_completer_pattern():
     completions = completer.get_completions(Document("a."), CompleteEvent())
     assert [c.text for c in completions] == ["a.b.c", "a.b"]
 
-    # Without pattern
+    # Without pattern - should still include special characters now because issue 1609 enables special chars
     completer = WordCompleter(["abc", "a.b.c", "a.b", "xyz"])
     completions = completer.get_completions(Document("a."), CompleteEvent())
-    assert [c.text for c in completions] == []
+    assert [c.text for c in completions] == ["a.b.c", "a.b"]
 
 
 def test_fuzzy_completer():
