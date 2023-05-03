@@ -18,7 +18,7 @@ from prompt_toolkit.layout import Layout
 from prompt_toolkit.layout.containers import AnyContainer, HSplit
 from prompt_toolkit.layout.dimension import Dimension as D
 from prompt_toolkit.styles import BaseStyle
-from prompt_toolkit.validation import Validator
+from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.widgets import (
     Box,
     Button,
@@ -124,7 +124,14 @@ def input_dialog(
         return True  # Keep text.
 
     def ok_handler() -> None:
-        get_app().exit(result=textfield.text)
+        if validator is None:
+            get_app().exit(result=textfield.text)
+        else:
+            try:
+                textfield.validator.validate(textfield.document)
+                get_app().exit(result=textfield.text)
+            except ValidationError:
+                get_app().layout.focus(textfield)
 
     ok_button = Button(text=ok_text, handler=ok_handler)
     cancel_button = Button(text=cancel_text, handler=_return_none)
