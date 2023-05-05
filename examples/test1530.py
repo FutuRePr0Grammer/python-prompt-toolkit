@@ -16,13 +16,13 @@ test_completer = WordCompleter(
         "title()"
     ],
     ignore_case=True,
-    move_back_one_space=True,
+    move_back_one_space=False,
 )
 
 
 def main():
     text = prompt(
-        "Begin typing author or title to autocomplete: ", completer=test_completer, complete_while_typing=False
+        "Begin typing author or title to autocomplete: ", completer=test_completer, complete_while_typing=True
     )
     print("You said: %s" % text)
 
