@@ -36,7 +36,7 @@ class WordCompleter(Completer):
         self,
         words: list[str] | Callable[[], list[str]],
         ignore_case: bool = False,
-        move_back_one_space: bool = False,
+        move_back_one_space: bool = True,
         isFunction: bool = False,
         display_dict: Mapping[str, AnyFormattedText] | None = None,
         meta_dict: Mapping[str, AnyFormattedText] | None = None,

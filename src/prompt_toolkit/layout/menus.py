@@ -245,16 +245,15 @@ def _trim_formatted_text(
         result = []  # Text fragments.
         remaining_width = max_width - 3
 
-        for style_and_ch in explode_text_fragments(formatted_text):
+        for style_and_ch in reversed(explode_text_fragments(formatted_text)):
             ch_width = get_cwidth(style_and_ch[1])
 
             if ch_width <= remaining_width:
-                result.append(style_and_ch)
+                result.insert(0, style_and_ch)
                 remaining_width -= ch_width
             else:
                 break
-
-        result.append(("", "..."))
+        result.insert(0, ("", "..."))
 
         return result, max_width - remaining_width
     else:
@@ -271,7 +270,9 @@ class CompletionsMenu(ConditionalContainer):
         scroll_offset: int | Callable[[], int] = 0,
         extra_filter: FilterOrBool = True,
         display_arrows: FilterOrBool = False,
+        max_width = 35,
         z_index: int = 10**8,
+
     ) -> None:
         extra_filter = to_filter(extra_filter)
         display_arrows = to_filter(display_arrows)
@@ -279,7 +280,7 @@ class CompletionsMenu(ConditionalContainer):
         super().__init__(
             content=Window(
                 content=CompletionsMenuControl(),
-                width=Dimension(min=8),
+                width=Dimension(min=8, max=max_width),
                 height=Dimension(min=1, max=max_height),
                 scroll_offsets=ScrollOffsets(top=scroll_offset, bottom=scroll_offset),
                 right_margins=[ScrollbarMargin(display_arrows=display_arrows)],
