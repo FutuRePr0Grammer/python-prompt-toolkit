@@ -22,7 +22,7 @@ test_completer = WordCompleter(
 
 def main():
     text = prompt(
-        "Begin typing author or title to autocomplete: ", completer=test_completer, complete_while_typing=False
+        "Begin typing author or title to autocomplete then click tab to autocomplete: ", completer=test_completer, complete_while_typing=False
     )
     print("You said: %s" % text)
 
