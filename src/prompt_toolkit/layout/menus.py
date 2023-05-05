@@ -250,7 +250,7 @@ def _trim_formatted_text(
             ch_width = get_cwidth(style_and_ch[1])
 
             if ch_width <= remaining_width:
-                if 3 < count <= max_width - 3:
+                if 3 < count <= max_width:
                     result.append(style_and_ch)
                     remaining_width -= ch_width
                     count += 1
