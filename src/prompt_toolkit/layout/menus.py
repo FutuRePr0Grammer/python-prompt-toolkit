@@ -37,7 +37,6 @@ if TYPE_CHECKING:
         NotImplementedOrNone,
     )
 
-
 __all__ = [
     "CompletionsMenu",
     "MultiColumnCompletionsMenu",
@@ -75,11 +74,11 @@ class CompletionsMenuControl(UIControl):
             return 0
 
     def preferred_height(
-        self,
-        width: int,
-        max_available_height: int,
-        wrap_lines: bool,
-        get_line_prefix: GetLinePrefixCallable | None,
+            self,
+            width: int,
+            max_available_height: int,
+            wrap_lines: bool,
+            get_line_prefix: GetLinePrefixCallable | None,
     ) -> int | None:
         complete_state = get_app().current_buffer.complete_state
         if complete_state:
@@ -143,7 +142,7 @@ class CompletionsMenuControl(UIControl):
         )
 
     def _get_menu_meta_width(
-        self, max_width: int, complete_state: CompletionState
+            self, max_width: int, complete_state: CompletionState
     ) -> int:
         """
         Return the width of the meta column.
@@ -164,7 +163,7 @@ class CompletionsMenuControl(UIControl):
             return 0
 
     def _get_menu_item_meta_fragments(
-        self, completion: Completion, is_current_completion: bool, width: int
+            self, completion: Completion, is_current_completion: bool, width: int
     ) -> StyleAndTextTuples:
         if is_current_completion:
             style_str = "class:completion-menu.meta.completion.current"
@@ -202,10 +201,10 @@ class CompletionsMenuControl(UIControl):
 
 
 def _get_menu_item_fragments(
-    completion: Completion,
-    is_current_completion: bool,
-    width: int,
-    space_after: bool = False,
+        completion: Completion,
+        is_current_completion: bool,
+        width: int,
+        space_after: bool = False,
 ) -> StyleAndTextTuples:
     """
     Get the style/text tuples for a menu item, styled and trimmed to the given
@@ -232,13 +231,14 @@ def _get_menu_item_fragments(
 
 
 def _trim_formatted_text(
-    formatted_text: StyleAndTextTuples, max_width: int
+        formatted_text: StyleAndTextTuples, max_width: int
 ) -> tuple[StyleAndTextTuples, int]:
     """
     Trim the text to `max_width`, append dots when the text is too long.
     Returns (text, width) tuple.
     """
     width = fragment_list_width(formatted_text)
+    count = 1
 
     # When the text is too wide, trim it.
     if width > max_width:
@@ -246,15 +246,21 @@ def _trim_formatted_text(
         remaining_width = max_width - 3
 
         for style_and_ch in explode_text_fragments(formatted_text):
+            # print(style_and_ch[1])
             ch_width = get_cwidth(style_and_ch[1])
 
             if ch_width <= remaining_width:
-                result.append(style_and_ch)
-                remaining_width -= ch_width
+                if 3 < count <= max_width:
+                    result.append(style_and_ch)
+                    remaining_width -= ch_width
+                    count += 1
+                else:
+                    count += 1
             else:
                 break
 
-        result.append(("", "..."))
+        # result.append(("", "..."))
+        result.insert(0, ("", "..."))
 
         return result, max_width - remaining_width
     else:
@@ -266,12 +272,12 @@ class CompletionsMenu(ConditionalContainer):
     #       above anything else. We also want to make sure that the content is
     #       visible at the point where we draw this menu.
     def __init__(
-        self,
-        max_height: int | None = None,
-        scroll_offset: int | Callable[[], int] = 0,
-        extra_filter: FilterOrBool = True,
-        display_arrows: FilterOrBool = False,
-        z_index: int = 10**8,
+            self,
+            max_height: int | None = None,
+            scroll_offset: int | Callable[[], int] = 0,
+            extra_filter: FilterOrBool = True,
+            display_arrows: FilterOrBool = False,
+            z_index: int = 10 ** 8,
     ) -> None:
         extra_filter = to_filter(extra_filter)
         display_arrows = to_filter(display_arrows)
@@ -369,18 +375,18 @@ class MultiColumnCompletionMenuControl(UIControl):
         # reduce by removing columns until we are less than the available
         # width.
         while (
-            result > column_width
-            and result > max_available_width - self._required_margin
+                result > column_width
+                and result > max_available_width - self._required_margin
         ):
             result -= column_width
         return result + self._required_margin
 
     def preferred_height(
-        self,
-        width: int,
-        max_available_height: int,
-        wrap_lines: bool,
-        get_line_prefix: GetLinePrefixCallable | None,
+            self,
+            width: int,
+            max_available_height: int,
+            wrap_lines: bool,
+            get_line_prefix: GetLinePrefixCallable | None,
     ) -> int | None:
         """
         Preferred height: as much as needed in order to display all the completions.
@@ -408,7 +414,7 @@ class MultiColumnCompletionMenuControl(UIControl):
         _T = TypeVar("_T")
 
         def grouper(
-            n: int, iterable: Iterable[_T], fillvalue: _T | None = None
+                n: int, iterable: Iterable[_T], fillvalue: _T | None = None
         ) -> Iterable[Sequence[_T | None]]:
             "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
             args = [iter(iterable)] * n
@@ -417,9 +423,9 @@ class MultiColumnCompletionMenuControl(UIControl):
         def is_current_completion(completion: Completion) -> bool:
             "Returns True when this completion is the currently selected one."
             return (
-                complete_state is not None
-                and complete_state.complete_index is not None
-                and c == complete_state.current_completion
+                    complete_state is not None
+                    and complete_state.complete_index is not None
+                    and c == complete_state.current_completion
             )
 
         # Space required outside of the regular columns, for displaying the
@@ -467,7 +473,7 @@ class MultiColumnCompletionMenuControl(UIControl):
                 fragments.append(("", " "))
 
             # Draw row content.
-            for column_index, c in enumerate(row[self.scroll :][:visible_columns]):
+            for column_index, c in enumerate(row[self.scroll:][:visible_columns]):
                 if c is not None:
                     fragments += _get_menu_item_fragments(
                         c, is_current_completion(c), column_width, space_after=False
@@ -503,7 +509,7 @@ class MultiColumnCompletionMenuControl(UIControl):
         self._render_left_arrow = render_left_arrow
         self._render_right_arrow = render_right_arrow
         self._render_width = (
-            column_width * visible_columns + render_left_arrow + render_right_arrow + 1
+                column_width * visible_columns + render_left_arrow + render_right_arrow + 1
         )
 
         def get_line(i: int) -> StyleAndTextTuples:
@@ -523,8 +529,8 @@ class MultiColumnCompletionMenuControl(UIControl):
             return width
         except KeyError:
             result = (
-                max(get_cwidth(c.display_text) for c in completion_state.completions)
-                + 1
+                    max(get_cwidth(c.display_text) for c in completion_state.completions)
+                    + 1
             )
             self._column_width_for_completion_state[completion_state] = (
                 len(completion_state.completions),
@@ -635,12 +641,12 @@ class MultiColumnCompletionsMenu(HSplit):
     """
 
     def __init__(
-        self,
-        min_rows: int = 3,
-        suggested_max_column_width: int = 30,
-        show_meta: FilterOrBool = True,
-        extra_filter: FilterOrBool = True,
-        z_index: int = 10**8,
+            self,
+            min_rows: int = 3,
+            suggested_max_column_width: int = 30,
+            show_meta: FilterOrBool = True,
+            extra_filter: FilterOrBool = True,
+            z_index: int = 10 ** 8,
     ) -> None:
         show_meta = to_filter(show_meta)
         extra_filter = to_filter(extra_filter)
@@ -716,11 +722,11 @@ class _SelectedCompletionMetaControl(UIControl):
             return 0
 
     def preferred_height(
-        self,
-        width: int,
-        max_available_height: int,
-        wrap_lines: bool,
-        get_line_prefix: GetLinePrefixCallable | None,
+            self,
+            width: int,
+            max_available_height: int,
+            wrap_lines: bool,
+            get_line_prefix: GetLinePrefixCallable | None,
     ) -> int | None:
         return 1
 
@@ -737,9 +743,9 @@ class _SelectedCompletionMetaControl(UIControl):
         state = get_app().current_buffer.complete_state
 
         if (
-            state
-            and state.current_completion
-            and state.current_completion.display_meta_text
+                state
+                and state.current_completion
+                and state.current_completion.display_meta_text
         ):
             return to_formatted_text(
                 cast(StyleAndTextTuples, [("", " ")])

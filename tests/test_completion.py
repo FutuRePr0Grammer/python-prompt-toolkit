@@ -308,6 +308,29 @@ def test_word_completer_static_word_list_special_and_alphanumeric():
     assert [c.text for c in completions] == ["aaa"]
 
 
+def test_word_completer_static_word_list_long_words():
+    completer = WordCompleter([
+                                  'reeeeeeeeeallyreallyreallyreallylong.word.test'
+                                  '.completion_test_trying_to_add_ellipsis123456763322323243asdfasdsdf323232',
+                                  'reallytestshortstring', 'testunrelatedstring'])
+
+    # Static list on empty input.
+    completions = completer.get_completions(Document(""), CompleteEvent())
+    assert [c.text for c in completions] == [
+        'reeeeeeeeeallyreallyreallyreallylong.word.test'
+        '.completion_test_trying_to_add_ellipsis123456763322323243asdfasdsdf323232',
+        'reallytestshortstring', 'testunrelatedstring']
+
+    completions = completer.get_completions(Document("r"), CompleteEvent())
+    assert [c.text for c in completions] == [
+        "reeeeeeeeeallyreallyreallyreallylong.word.test"
+        ".completion_test_trying_to_add_ellipsis123456763322323243asdfasdsdf323232",
+        "reallytestshortstring"]
+
+    completions = completer.get_completions(Document("t"), CompleteEvent())
+    assert [c.text for c in completions] == ["testunrelatedstring"]
+
+
 def test_word_completer_ignore_case():
     completer = WordCompleter(["abc", "def", "aaa"], ignore_case=True)
     completions = completer.get_completions(Document("a"), CompleteEvent())
