@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Iterable, Sequence
+from typing import Callable, Iterable, Sequence, Any
 
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.filters import Condition
@@ -21,6 +21,8 @@ from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.mouse_events import MouseEvent, MouseEventType
 from prompt_toolkit.utils import get_cwidth
 from prompt_toolkit.widgets import Shadow
+from time import sleep
+from datetime import datetime
 
 from .base import Border
 
@@ -39,16 +41,17 @@ class MenuContainer:
     """
 
     def __init__(
-        self,
-        body: AnyContainer,
-        menu_items: list[MenuItem],
-        floats: list[Float] | None = None,
-        key_bindings: KeyBindingsBase | None = None,
+            self,
+            body: AnyContainer,
+            menu_items: list[MenuItem],
+            floats: list[Float] | None = None,
+            key_bindings: KeyBindingsBase | None = None,
+            create_clock: bool = True
     ) -> None:
         self.body = body
         self.menu_items = menu_items
         self.selected_menu = [0]
-
+        self.create_clock = create_clock
         # Key bindings.
         kb = KeyBindings()
 
@@ -100,8 +103,8 @@ class MenuContainer:
 
             # If This item does not have a sub menu. Go up in the parent menu.
             elif (
-                len(self.selected_menu) == 2
-                and self.selected_menu[0] < len(self.menu_items) - 1
+                    len(self.selected_menu) == 2
+                    and self.selected_menu[0] < len(self.menu_items) - 1
             ):
                 self.selected_menu = [
                     min(len(self.menu_items) - 1, self.selected_menu[0] + 1)
@@ -176,42 +179,42 @@ class MenuContainer:
                 ]
             ),
             floats=[
-                Float(
-                    xcursor=True,
-                    ycursor=True,
-                    content=ConditionalContainer(
-                        content=Shadow(body=submenu), filter=has_focus
-                    ),
-                ),
-                Float(
-                    attach_to_window=submenu,
-                    xcursor=True,
-                    ycursor=True,
-                    allow_cover_cursor=True,
-                    content=ConditionalContainer(
-                        content=Shadow(body=submenu2),
-                        filter=has_focus
-                        & Condition(lambda: len(self.selected_menu) >= 1),
-                    ),
-                ),
-                Float(
-                    attach_to_window=submenu2,
-                    xcursor=True,
-                    ycursor=True,
-                    allow_cover_cursor=True,
-                    content=ConditionalContainer(
-                        content=Shadow(body=submenu3),
-                        filter=has_focus
-                        & Condition(lambda: len(self.selected_menu) >= 2),
-                    ),
-                ),
-                # --
-            ]
-            + (floats or []),
+                       Float(
+                           xcursor=True,
+                           ycursor=True,
+                           content=ConditionalContainer(
+                               content=Shadow(body=submenu), filter=has_focus
+                           ),
+                       ),
+                       Float(
+                           attach_to_window=submenu,
+                           xcursor=True,
+                           ycursor=True,
+                           allow_cover_cursor=True,
+                           content=ConditionalContainer(
+                               content=Shadow(body=submenu2),
+                               filter=has_focus
+                                      & Condition(lambda: len(self.selected_menu) >= 1),
+                           ),
+                       ),
+                       Float(
+                           attach_to_window=submenu2,
+                           xcursor=True,
+                           ycursor=True,
+                           allow_cover_cursor=True,
+                           content=ConditionalContainer(
+                               content=Shadow(body=submenu3),
+                               filter=has_focus
+                                      & Condition(lambda: len(self.selected_menu) >= 2),
+                           ),
+                       ),
+                       # --
+                   ]
+                   + (floats or []),
             key_bindings=key_bindings,
         )
 
-    def _get_menu(self, level: int) -> MenuItem:
+    def _get_menu(self, level: int) -> MenuItem | str | Any:
         menu = self.menu_items[self.selected_menu[0]]
 
         for i, index in enumerate(self.selected_menu[1:]):
@@ -220,6 +223,11 @@ class MenuContainer:
                     menu = menu.children[index]
                 except IndexError:
                     return MenuItem("debug")
+        if self.create_clock:
+            current_time = datetime.today()
+            display_time = (current_time.strftime("%m/%d/%Y %H:%M:%S"))
+            while 1:
+                return "Bottom toolbar: It's A Clock: %r" % display_time
 
         return menu
 
@@ -236,9 +244,9 @@ class MenuContainer:
             def mouse_handler(mouse_event: MouseEvent) -> None:
                 hover = mouse_event.event_type == MouseEventType.MOUSE_MOVE
                 if (
-                    mouse_event.event_type == MouseEventType.MOUSE_DOWN
-                    or hover
-                    and focused
+                        mouse_event.event_type == MouseEventType.MOUSE_DOWN
+                        or hover
+                        and focused
                 ):
                     # Toggle focus.
                     app = get_app()
@@ -280,7 +288,7 @@ class MenuContainer:
                         selected_item = -1
 
                     def one_item(
-                        i: int, item: MenuItem
+                            i: int, item: MenuItem
                     ) -> Iterable[OneStyleAndTextTuple]:
                         def mouse_handler(mouse_event: MouseEvent) -> None:
                             if item.disabled:
@@ -289,8 +297,8 @@ class MenuContainer:
                                 return
                             hover = mouse_event.event_type == MouseEventType.MOUSE_MOVE
                             if (
-                                mouse_event.event_type == MouseEventType.MOUSE_UP
-                                or hover
+                                    mouse_event.event_type == MouseEventType.MOUSE_UP
+                                    or hover
                             ):
                                 app = get_app()
                                 if not hover and item.handler:
@@ -298,8 +306,8 @@ class MenuContainer:
                                     item.handler()
                                 else:
                                     self.selected_menu = self.selected_menu[
-                                        : level + 1
-                                    ] + [i]
+                                                         : level + 1
+                                                         ] + [i]
 
                         if i == selected_item:
                             yield ("[SetCursorPosition]", "")
@@ -352,12 +360,12 @@ class MenuContainer:
 
 class MenuItem:
     def __init__(
-        self,
-        text: str = "",
-        handler: Callable[[], None] | None = None,
-        children: list[MenuItem] | None = None,
-        shortcut: Sequence[Keys | str] | None = None,
-        disabled: bool = False,
+            self,
+            text: str = "",
+            handler: Callable[[], None] | None = None,
+            children: list[MenuItem] | None = None,
+            shortcut: Sequence[Keys | str] | None = None,
+            disabled: bool = False,
     ) -> None:
         self.text = text
         self.handler = handler

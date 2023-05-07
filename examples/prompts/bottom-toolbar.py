@@ -15,6 +15,7 @@ import time
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import ANSI, HTML
 from prompt_toolkit.styles import Style
+from datetime import datetime
 
 
 def main():
@@ -24,7 +25,10 @@ def main():
 
     # Example 2: fixed text from a callable:
     def get_toolbar():
-        return "Bottom toolbar: time=%r" % time.time()
+        current_time = datetime.today()
+        display_time = (current_time.strftime("%m/%d/%Y %H:%M:%S"))
+        while 1:
+            return "Bottom toolbar: It's A Clock: %r" % display_time
 
     text = prompt("Say something: ", bottom_toolbar=get_toolbar, refresh_interval=0.5)
     print("You said: %s" % text)

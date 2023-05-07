@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 """
-from pygments.lexers.html import HtmlLexer
+from pygments.lexers import HtmlLexer
 
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
@@ -119,7 +119,7 @@ root_container = HSplit(
             padding=1,
         ),
         Box(
-            body=VSplit([yes_button, no_button], align="CENTER", padding=3),
+            body=VSplit([yes_button, no_button], align='CENTER', padding=3),
             style="class:button-bar",
             height=3,
         ),
@@ -141,6 +141,7 @@ root_container = MenuContainer(
                         MenuItem(
                             "Something else..",
                             children=[
+                                MenuItem("TESTING TO ADD THIS IN HERE"),
                                 MenuItem("A"),
                                 MenuItem("B"),
                                 MenuItem("C"),
