@@ -8,8 +8,6 @@ parenthesis_test_completer = WordCompleter(
         "print",
     ],
     ignore_case=True,
-    # Removing move_back_one_space=True allows for a preview of the word you are autofilling but puts cursor at end not
-    # between parenthesis
     move_back_one_space=True,
     isFunction=True,
 )

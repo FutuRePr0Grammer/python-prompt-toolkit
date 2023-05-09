@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Part of this was provided by the github page for issue #1703 as the demo for it
+# I added the clear keybind and fixed the escape keybind
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
@@ -6,10 +8,6 @@ from prompt_toolkit.key_binding import KeyBindings
 
 def dyn_prompt(buf):
     def inner():
-        #print("This is the undo")
-        #print(buf._undo_stack)
-        #print("This is the redo")
-        #print(buf._redo_stack)
         return f"undo: {len(buf._undo_stack)} | redo: {len(buf._redo_stack)}"
     return inner
 
@@ -19,8 +17,9 @@ def main():
 
     @kb.add("escape", "u")
     def _(event):
-        event.current_buffer.undo()
-        #print(event.current_buffer)
+        # Prevents undo being used when there is nothing to undo
+        if (len(event.current_buffer._undo_stack) > 0):
+            event.current_buffer.undo()
 
     @kb.add("escape", "r")
     def _(event):
