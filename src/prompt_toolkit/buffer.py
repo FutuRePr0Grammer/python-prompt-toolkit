@@ -619,21 +619,23 @@ class Buffer:
 
     # End of <getters/setters>
 
-    def save_to_undo_stack(self, clear_redo_stack: bool = True) -> None:
+    def save_to_undo_stack(self, clear_redo_stack: bool = False) -> None:
         """
         Safe current state (input text and cursor position), so that we can
         restore it by calling undo.
         """
         # Safe if the text is different from the text at the top of the stack
-        # is different. If the text is the same, just update the cursor position.
+        # If the text is the same, just update the cursor position.
         if self._undo_stack and self._undo_stack[-1][0] == self.text:
             self._undo_stack[-1] = (self._undo_stack[-1][0], self.cursor_position)
         else:
             self._undo_stack.append((self.text, self.cursor_position))
 
-        # Saving anything to the undo stack, clears the redo stack.
+        # This should only accessed by the clear() function which overides this method's default bool param
         if clear_redo_stack:
             self._redo_stack = []
+
+
 
     def transform_lines(
         self,
@@ -1277,11 +1279,17 @@ class Buffer:
     def redo(self) -> None:
         if self._redo_stack:
             # Copy current state on undo stack.
-            self.save_to_undo_stack(clear_redo_stack=False)
+            self.save_to_undo_stack()
 
             # Pop state from redo stack.
             text, pos = self._redo_stack.pop()
             self.document = Document(text, cursor_position=pos)
+
+    def clear(self) -> None:
+        if self._redo_stack:
+            self.save_to_undo_stack(True)
+
+
 
     def validate(self, set_cursor: bool = False) -> bool:
         """

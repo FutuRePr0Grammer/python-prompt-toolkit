@@ -313,6 +313,7 @@ class KeyProcessor:
 
         # Save the state of the current buffer.
         if handler.save_before(event):
+            # This is false as it's default to allow for redo to work
             event.app.current_buffer.save_to_undo_stack()
 
         # Call handler.
